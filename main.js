@@ -1,29 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
-    var addButton = document.getElementById("addBtn");
-    var titleInput = document.getElementById("titel");
-    var amountInput = document.getElementById("betrag");
-    var dateInput = document.getElementById("datum");
-    var incomeRadio = document.getElementById("einnahme");
-    var expenseRadio = document.getElementById("ausgabe");
-    var monthLists = document.getElementById("monatslisten");
-    var totalIncomeEl = document.querySelector(".gesamtbilanz-zeile.einnahmen span:last-child");
-    var totalExpenseEl = document.querySelector(".gesamtbilanz-zeile.ausgaben span:last-child");
-    var totalBalanceEl = document.querySelector(".gesamtbilanz-zeile.bilanz span:last-child");
+    let addButton = document.getElementById("addBtn");
+    let titleInput = document.getElementById("titel");
+    let amountInput = document.getElementById("betrag");
+    let dateInput = document.getElementById("datum");
+    let incomeRadio = document.getElementById("einnahme");
+    let expenseRadio = document.getElementById("ausgabe");
+    let monthLists = document.getElementById("monatslisten");
+    let totalIncomeEl = document.querySelector(".gesamtbilanz-zeile.einnahmen span:last-child");
+    let totalExpenseEl = document.querySelector(".gesamtbilanz-zeile.ausgaben span:last-child");
+    let totalBalanceEl = document.querySelector(".gesamtbilanz-zeile.bilanz span:last-child");
 
-    var transactions = [];
+    let transactions = [];
 
     addButton.addEventListener("click", function () {
-        var title = titleInput.value.trim();
-        var amount = parseFloat(amountInput.value);
-        var date = dateInput.value;
-        var type = incomeRadio.checked ? "einnahme" : "ausgabe";
+        let title = titleInput.value.trim();
+        let amount = parseFloat(amountInput.value);
+        let date = dateInput.value;
+        let type = incomeRadio.checked ? "einnahme" : "ausgabe";
 
         if (!title || isNaN(amount) || !date) {
             alert("Bitte alle Felder ausfüllen!");
             return;
         }
 
-        var transaction = {
+        let transaction = {
             title: title,
             amount: amount,
             date: date,
@@ -37,47 +37,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateUI() {
         monthLists.innerHTML = "";
-        var groupedTransactions = groupByMonth(transactions);
-        var totalIncome = 0;
-        var totalExpense = 0;
+        let groupedTransactions = groupByMonth(transactions);
+        let totalIncome = 0;
+        let totalExpense = 0;
 
-        for (var monthYear in groupedTransactions) {
+        for (let monthYear in groupedTransactions) {
             if (groupedTransactions.hasOwnProperty(monthYear)) {
-                var trans = groupedTransactions[monthYear];
-                var monthIncome = 0;
-                var monthExpense = 0;
-                var article = document.createElement("article");
+                let trans = groupedTransactions[monthYear];
+                let monthIncome = 0;
+                let monthExpense = 0;
+                let article = document.createElement("article");
                 article.className = "monatsliste";
 
-                var h2 = document.createElement("h2");
+                let h2 = document.createElement("h2");
 
-                var spanMonthYear = document.createElement("span");
+                let spanMonthYear = document.createElement("span");
                 spanMonthYear.className = "monat-jahr";
                 spanMonthYear.textContent = monthYear;
 
-                var spanBalance = document.createElement("span");
+                let spanBalance = document.createElement("span");
                 spanBalance.className = "monatsbilanz";
 
-                var ul = document.createElement("ul");
+                let ul = document.createElement("ul");
 
-                for (var i = 0; i < trans.length; i++) {
-                    var t = trans[i];
-                    var li = document.createElement("li");
+                for (let i = 0; i < trans.length; i++) {
+                    let t = trans[i];
+                    let li = document.createElement("li");
                     li.className = t.type;
 
-                    var spanDate = document.createElement("span");
+                    let spanDate = document.createElement("span");
                     spanDate.className = "datum";
                     spanDate.textContent = formatDate(t.date);
 
-                    var spanTitle = document.createElement("span");
+                    let spanTitle = document.createElement("span");
                     spanTitle.className = "titel";
                     spanTitle.textContent = t.title;
 
-                    var spanAmount = document.createElement("span");
+                    let spanAmount = document.createElement("span");
                     spanAmount.className = "betrag";
                     spanAmount.textContent = t.amount.toFixed(2) + " €";
 
-                    var removeBtn = document.createElement("button");
+                    let removeBtn = document.createElement("button");
                     removeBtn.className = "entfernen-button";
                     removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
                     removeBtn.onclick = function(transaction) {
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
 
-                var monthBalance = monthIncome - monthExpense;
+                let monthBalance = monthIncome - monthExpense;
                 spanBalance.textContent = monthBalance.toFixed(2) + " €";
                 if (monthBalance >= 0) {
                     spanBalance.classList.add("positiv");
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         totalIncomeEl.textContent = totalIncome.toFixed(2) + "€";
         totalExpenseEl.textContent = totalExpense.toFixed(2) + "€";
-        var totalBalance = totalIncome - totalExpense;
+        let totalBalance = totalIncome - totalExpense;
         totalBalanceEl.textContent = totalBalance.toFixed(2) + "€";
         if (totalBalance >= 0) {
             totalBalanceEl.classList.add("positiv");
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function removeTransaction(transactionToRemove) {
-        for (var i = 0; i < transactions.length; i++) {
+        for (let i = 0; i < transactions.length; i++) {
             if (transactions[i] === transactionToRemove) {
                 transactions.splice(i, 1);
                 break;
@@ -148,11 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function groupByMonth(transactions) {
-        var groups = {};
-        for (var i = 0; i < transactions.length; i++) {
-            var t = transactions[i];
-            var dateParts = t.date.split("-");
-            var key = dateParts[1] + "/" + dateParts[0]; // Format: MM/YYYY
+        let groups = {};
+        for (let i = 0; i < transactions.length; i++) {
+            let t = transactions[i];
+            let dateParts = t.date.split("-");
+            let key = dateParts[1] + "/" + dateParts[0]; // Format: MM/YYYY
             if (!groups[key]) {
                 groups[key] = [];
             }
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function formatDate(dateString) {
-        var parts = dateString.split("-");
+        let parts = dateString.split("-");
         return parts[2] + "." + parts[1] + "." + parts[0];
     }
 });
