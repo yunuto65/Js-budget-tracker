@@ -1,100 +1,168 @@
-let Einnahme = 0;
-let Ausgabe = 0;
-let Bilanz = 0;
-let transactions = [];
+document.addEventListener("DOMContentLoaded", function () {
+    var addButton = document.getElementById("addBtn");
+    var titleInput = document.getElementById("titel");
+    var amountInput = document.getElementById("betrag");
+    var dateInput = document.getElementById("datum");
+    var incomeRadio = document.getElementById("einnahme");
+    var expenseRadio = document.getElementById("ausgabe");
+    var monthLists = document.getElementById("monatslisten");
+    var totalIncomeEl = document.querySelector(".gesamtbilanz-zeile.einnahmen span:last-child");
+    var totalExpenseEl = document.querySelector(".gesamtbilanz-zeile.ausgaben span:last-child");
+    var totalBalanceEl = document.querySelector(".gesamtbilanz-zeile.bilanz span:last-child");
 
-document.getElementById("addBtn").addEventListener("click", function () {
-    let Titel = document.getElementById("titel").value.trim();
-    let Betrag = parseFloat(document.getElementById("betrag").value.trim());
-    let inputDate = document.getElementById("datum").value;
-    let Auswahl = document.getElementById("einnahme").checked ? "Einnahme" : "Ausgabe";
+    var transactions = [];
 
-    let [jahr, monat, tag] = inputDate.split("-");
-    let Date = `${tag}.${monat}.${jahr}`;
+    addButton.addEventListener("click", function () {
+        var title = titleInput.value.trim();
+        var amount = parseFloat(amountInput.value);
+        var date = dateInput.value;
+        var type = incomeRadio.checked ? "einnahme" : "ausgabe";
 
-    addTransaction(Titel, Betrag, Date, Auswahl);
+        if (!title || isNaN(amount) || !date) {
+            alert("Bitte alle Felder ausfüllen!");
+            return;
+        }
+
+        var transaction = {
+            title: title,
+            amount: amount,
+            date: date,
+            type: type
+        };
+
+        transactions.push(transaction);
+        updateUI();
+        clearForm();
+    });
+
+    function updateUI() {
+        monthLists.innerHTML = "";
+        var groupedTransactions = groupByMonth(transactions);
+        var totalIncome = 0;
+        var totalExpense = 0;
+
+        for (var monthYear in groupedTransactions) {
+            if (groupedTransactions.hasOwnProperty(monthYear)) {
+                var trans = groupedTransactions[monthYear];
+                var monthIncome = 0;
+                var monthExpense = 0;
+                var article = document.createElement("article");
+                article.className = "monatsliste";
+
+                var h2 = document.createElement("h2");
+
+                var spanMonthYear = document.createElement("span");
+                spanMonthYear.className = "monat-jahr";
+                spanMonthYear.textContent = monthYear;
+
+                var spanBalance = document.createElement("span");
+                spanBalance.className = "monatsbilanz";
+
+                var ul = document.createElement("ul");
+
+                for (var i = 0; i < trans.length; i++) {
+                    var t = trans[i];
+                    var li = document.createElement("li");
+                    li.className = t.type;
+
+                    var spanDate = document.createElement("span");
+                    spanDate.className = "datum";
+                    spanDate.textContent = formatDate(t.date);
+
+                    var spanTitle = document.createElement("span");
+                    spanTitle.className = "titel";
+                    spanTitle.textContent = t.title;
+
+                    var spanAmount = document.createElement("span");
+                    spanAmount.className = "betrag";
+                    spanAmount.textContent = t.amount.toFixed(2) + " €";
+
+                    var removeBtn = document.createElement("button");
+                    removeBtn.className = "entfernen-button";
+                    removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    removeBtn.onclick = function(transaction) {
+                        return function() {
+                            removeTransaction(transaction);
+                        };
+                    }(t);
+
+                    li.appendChild(spanDate);
+                    li.appendChild(spanTitle);
+                    li.appendChild(spanAmount);
+                    li.appendChild(removeBtn);
+                    ul.appendChild(li);
+
+                    if (t.type === "einnahme") {
+                        monthIncome += t.amount;
+                        totalIncome += t.amount;
+                    } else {
+                        monthExpense += t.amount;
+                        totalExpense += t.amount;
+                    }
+                }
+
+                var monthBalance = monthIncome - monthExpense;
+                spanBalance.textContent = monthBalance.toFixed(2) + " €";
+                if (monthBalance >= 0) {
+                    spanBalance.classList.add("positiv");
+                } else {
+                    spanBalance.classList.add("negativ");
+                }
+
+                h2.appendChild(spanMonthYear);
+                h2.appendChild(spanBalance);
+                article.appendChild(h2);
+                article.appendChild(ul);
+                monthLists.appendChild(article);
+            }
+        }
+
+        totalIncomeEl.textContent = totalIncome.toFixed(2) + "€";
+        totalExpenseEl.textContent = totalExpense.toFixed(2) + "€";
+        var totalBalance = totalIncome - totalExpense;
+        totalBalanceEl.textContent = totalBalance.toFixed(2) + "€";
+        if (totalBalance >= 0) {
+            totalBalanceEl.classList.add("positiv");
+            totalBalanceEl.classList.remove("negativ");
+        } else {
+            totalBalanceEl.classList.add("negativ");
+            totalBalanceEl.classList.remove("positiv");
+        }
+    }
+
+    function clearForm() {
+        titleInput.value = "";
+        amountInput.value = "";
+        dateInput.value = "";
+        expenseRadio.checked = true;
+    }
+
+    function removeTransaction(transactionToRemove) {
+        for (var i = 0; i < transactions.length; i++) {
+            if (transactions[i] === transactionToRemove) {
+                transactions.splice(i, 1);
+                break;
+            }
+        }
+        updateUI();
+    }
+
+    function groupByMonth(transactions) {
+        var groups = {};
+        for (var i = 0; i < transactions.length; i++) {
+            var t = transactions[i];
+            var dateParts = t.date.split("-");
+            var key = dateParts[1] + "/" + dateParts[0]; // Format: MM/YYYY
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(t);
+        }
+        return groups;
+    }
+
+    function formatDate(dateString) {
+        var parts = dateString.split("-");
+        return parts[2] + "." + parts[1] + "." + parts[0];
+    }
 });
-
-function addTransaction(Titel, Betrag, Date, Auswahl) {
-    if (!Titel || isNaN(Betrag) || !Date) {
-        alert("Bitte alle Felder korrekt ausfüllen!");
-        return;
-    }
-
-    if (Auswahl === "Einnahme") {
-        Einnahme += Betrag;
-    } else {
-        Ausgabe += Betrag;
-    }
-
-    Bilanz = Einnahme - Ausgabe;
-
-    transactions.push({ Titel, Betrag, Date, Auswahl, Einnahme, Ausgabe, Bilanz });
-
-    console.log(Titel, Betrag, Date, Auswahl, Einnahme, Ausgabe, Bilanz);
-
-    let Monatslisten = document.querySelector("#monatslisten");
-
-    
-    let newMonatsliste = document.createElement("article");
-    newMonatsliste.classList.add("monatsliste");
-
-    Monatslisten.appendChild(newMonatsliste);
-
-    
-    let h2Article = document.createElement("h2");
-    let spanInh2 = document.createElement("span");
-
-    let monatZahl = Date.slice(3, 5);
-    let monatName;
-    switch (monatZahl) {
-        case "01": monatName = "Januar"; break;
-        case "02": monatName = "Februar"; break;
-        case "03": monatName = "März"; break;
-        case "04": monatName = "April"; break;
-        case "05": monatName = "Mai"; break;
-        case "06": monatName = "Juni"; break;
-        case "07": monatName = "Juli"; break;
-        case "08": monatName = "August"; break;
-        case "09": monatName = "September"; break;
-        case "10": monatName = "Oktober"; break;
-        case "11": monatName = "November"; break;
-        case "12": monatName = "Dezember"; break;
-        default: monatName = "Ungültiger Monat"; break;
-    }
-
-    spanInh2.textContent = `${monatName} ${Date.slice(6)}`;
-    spanInh2.classList.add("monat-Jahr");
-
-    
-    if (Auswahl === "Einnahme") {
-        spanInh2.classList.add("monatsbilanz", "positiv");
-    } else {
-        spanInh2.classList.add("monatsbilanz", "negativ");
-    }
-
-    h2Article.appendChild(spanInh2);
-    newMonatsliste.appendChild(h2Article);
-
-    
-    let ulArticle = document.createElement("ul");
-
-    
-    let liInul = document.createElement("li");
-    liInul.classList.add(Auswahl.toLowerCase()); 
-    liInul.innerHTML = `
-        <span class="datum">${Date}</span>
-        <span class="titel">${Titel}</span>
-        <span class="betrag">${Betrag.toFixed(2)} €</span>
-        <button class="entfernen-button"><i class="fas fa-trash"></i></button>
-    `;
-    
-    ulArticle.appendChild(liInul); 
-    newMonatsliste.appendChild(ulArticle); 
-}
-
-
-
-
-
-

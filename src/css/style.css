@@ -509,3 +509,24 @@ button.standard:focus {
 #gesamtbilanz>.bilanz>span:nth-of-type(2).negativ {
     background-color: #dc3545;
 }
+
+.monatsbilanz.negativ {
+    margin-left: 1000px; /* Verschiebt das Element ganz nach rechts */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.monatsbilanz.positiv {
+    margin-left: 1000px; /* Verschiebt das Element ganz nach rechts */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+
+h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
