@@ -35,6 +35,16 @@ document.addEventListener("DOMContentLoaded", function () {
         clearForm();
     });
 
+    addBtnImport.addEventListener("click", function() {
+        let [fileHandle] = window.showOpenFilePicker();
+        let fileData = fileHandle.getFi
+    });
+
+    addBtnExport.addEventListener("click", function() {
+
+    });
+
+
     function updateUI() {
         monthLists.innerHTML = "";
         let groupedTransactions = groupByMonth(transactions);
@@ -165,4 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let parts = dateString.split("-");
         return parts[2] + "." + parts[1] + "." + parts[0];
     }
+
+    
 });
